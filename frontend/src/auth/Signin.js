@@ -14,7 +14,7 @@ const handleSubmit = async (e) => {
   }
 
   try {
-    const response = await fetch('https://colorpicker.victoryfarmskenya.com/backend/login', {
+    const response = await fetch('http://127.0.0.1:5000/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -104,9 +104,6 @@ console.log('Response Data:', data);
                 />
               </div>
             </div>
-            <Turnstile siteKey='0x4AAAAAAAijCFpwxNdzHPFs' />
-
-  
             <div>
               <button
                 type="submit"

@@ -17,7 +17,7 @@ export const Report = () => {
 
   const fetchData = _.debounce(async () => {
     try {
-      const response = await axios.get('https://colorpicker.victoryfarmskenya.com/backend/submitted-data');
+      const response = await axios.get('http://127.0.0.1:5000/submitted-data');
       setData(response.data);
       setTotalPages(Math.ceil(response.data.length / itemsPerPage));
     } catch (error) {
@@ -115,7 +115,7 @@ export const Report = () => {
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
-          await axios.delete(`https://colorpicker.victoryfarmskenya.com/backend/delete-data/${item.id}`);
+          await axios.delete(`http://127.0.0.1:5000/delete-data/${item.id}`);
 
           setData((prevData) => prevData.filter((record) => record.id !== item.id));
         

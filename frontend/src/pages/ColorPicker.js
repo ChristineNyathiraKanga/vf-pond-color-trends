@@ -64,6 +64,8 @@ const ColorPicker = () => {
     "W5",
     "H0-01",
     "H0-07",
+    "H0_08",
+    "H0-09",
     "H0-02",
     "H0-05",
     "H0-03",
@@ -172,7 +174,7 @@ const ColorPicker = () => {
       const result = await open();
       const color = result.sRGBHex;
   
-      const response = await fetch('https://colorpicker.victoryfarmskenya.com/backend/match-color', {
+      const response = await fetch('http://127.0.0.1:5000/match-color', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -201,7 +203,7 @@ const ColorPicker = () => {
     };
 
     try {
-      const response = await fetch("https://colorpicker.victoryfarmskenya.com/backend/submit", {
+      const response = await fetch("http://127.0.0.1:5000/submit", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
