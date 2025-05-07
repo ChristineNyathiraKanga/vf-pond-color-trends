@@ -300,6 +300,7 @@ def submit():
         # Save each record in the database
         for selection in data['selections']:
             pond_image = Pond_Color_Trends(
+                id=submission_id,
                 image_filename=image_filename,
                 closest_color_name=selection.get('closestColor', {}).get('name', ''),
                 closest_color_code=selection.get('closestColor', {}).get('code', ''),
