@@ -3,3 +3,8 @@ Color Picker/bruno.json
 Color Picker/Create User.bru
 Color Picker/Match Color.bru
 Color Picker/Report.bru
+instance
+static/uploads
+Dockerfile
+Procfile.DEV
+config.py
