@@ -4,7 +4,8 @@ Color Picker/Create User.bru
 Color Picker/Match Color.bru
 Color Picker/Report.bru
 instance
-static/uploads
-Dockerfile
-Procfile.DEV
-config.py
+backend/static/uploads
+backend/Dockerfile
+backend/Procfile.dev
+backend/config.py
+
