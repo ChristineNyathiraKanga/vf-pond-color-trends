@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Header from "../components/Header";
 import axios from "axios";
-import * as XLSX from "xlsx";
+import * as XLSX from "xlsx-js-style";
 import ReactPaginate from 'react-paginate';
 import _ from 'lodash';
 import Swal from "sweetalert2";

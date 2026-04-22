@@ -22,13 +22,13 @@
     "react-paginate": "^8.2.0",
     "react-responsive-pagination": "^2.7.0",
     "react-router-dom": "^6.26.1",
-    "react-scripts": "^5.0.1",
+    "react-scripts": "^0.0.0",
     "react-select": "^5.8.0",
     "sweetalert2": "^11.12.3",
     "use-eye-dropper": "^1.6.1",
     "web-vitals": "^2.1.4",
     "webpack-dev-middleware": "^7.3.0",
-    "xlsx": "^0.18.5"
+    "xlsx-js-style": "^1.2.0"
   },
   "scripts": {
     "start": "react-scripts start",
