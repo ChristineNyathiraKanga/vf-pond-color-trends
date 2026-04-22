@@ -11,13 +11,22 @@ from flask_caching import Cache
 from flask import make_response
 from werkzeug.security import check_password_hash, generate_password_hash
 import jwt
-import datetime
+import boto3
+import csv
+import io
+import uuid
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 app.config.from_object(Config)
 db.init_app(app)
 cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+
+s3 = boto3.client('s3',
+    aws_access_key_id=app.config['AWS_ACCESS_KEY'],
+    aws_secret_access_key=app.config['AWS_SECRET_KEY']
+)
+
 
 # Color palette
 colors = [
@@ -215,20 +224,83 @@ def match_color():
         else:
             return jsonify({"error": "could not find a match"}), 400
          
+# @app.route('/submit', methods=['POST'])
+# def submit():
+#     data = request.json
+#     try:
+#         # Save the image
+#         image_data = data['image'].split(",")[1]
+#         image_filename = data['imageFilename']
+#         image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
+#         with open(image_path, "wb") as f:
+#             f.write(base64.b64decode(image_data))
+
+#         # Save each record in the database
+#         for selection in data['selections']:
+#             pond_image = Pond_Color_Trends(
+#                 image_filename=image_filename,
+#                 closest_color_name=selection.get('closestColor', {}).get('name', ''),
+#                 closest_color_code=selection.get('closestColor', {}).get('code', ''),
+#                 category=selection.get('category', ''),
+#                 pond=selection.get('pond', ''),
+#                 date=datetime.strptime(data['date'], '%a %b %d %Y %H:%M:%S GMT%z (East Africa Time)')
+#             )
+#             db.session.add(pond_image)
+
+#         db.session.commit()
+
+#         return jsonify({"message": "Data saved successfully"}), 200
+#     except Exception as e:
+#         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
+
 @app.route('/submit', methods=['POST'])
 def submit():
     data = request.json
     try:
-        # Save the image
+        # Save image locally (same as before)
         image_data = data['image'].split(",")[1]
         image_filename = data['imageFilename']
         image_path = os.path.join(app.config['UPLOAD_FOLDER'], image_filename)
         with open(image_path, "wb") as f:
             f.write(base64.b64decode(image_data))
 
+        # Prepare CSV row(s)
+        rows = []
+        submission_id = str(uuid.uuid4())
+        for selection in data['selections']:
+            row = [
+                submission_id,
+                image_filename,
+                selection.get('closestColor', {}).get('name', ''),
+                selection.get('closestColor', {}).get('code', ''),
+                selection.get('category', ''),
+                selection.get('pond', ''),
+                data['date']
+            ]
+            rows.append(row)
+
+        # Read existing CSV from S3 (or create new one)
+        try:
+            obj = s3.get_object(Bucket=app.config['AWS_S3_BUCKET'], Key=app.config['CSV_S3_KEY'])
+            existing_csv = obj['Body'].read().decode('utf-8')
+            csv_file = io.StringIO(existing_csv)
+            reader = list(csv.reader(csv_file))
+        except s3.exceptions.NoSuchKey:
+            reader = [["ID", "Image File Name", "Closest Color Name", "Closest Color Code","Category", "Pond", "Date"]]
+
+        # Append new rows
+        reader.extend(rows)
+
+        # Write back to S3
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerows(reader)
+        s3.put_object(Bucket=app.config['AWS_S3_BUCKET'], Key=app.config['CSV_S3_KEY'], Body=output.getvalue())
+        
         # Save each record in the database
         for selection in data['selections']:
             pond_image = Pond_Color_Trends(
+                id=submission_id,
                 image_filename=image_filename,
                 closest_color_name=selection.get('closestColor', {}).get('name', ''),
                 closest_color_code=selection.get('closestColor', {}).get('code', ''),
@@ -239,47 +311,87 @@ def submit():
             db.session.add(pond_image)
 
         db.session.commit()
-
         return jsonify({"message": "Data saved successfully"}), 200
+
     except Exception as e:
         return jsonify({"message": f"An error occurred: {str(e)}"}), 500
 
-@app.route('/submitted-data', methods=['GET'])
-@cache.cached(timeout=60)
-def get_submitted_data():
-   #  submitted_data = Pond_Color_Trends.query.all()
-    submitted_data = Pond_Color_Trends.query.order_by(Pond_Color_Trends.id.desc()).all()
-    data = [{
-        'id': item.id,
-      #   'image': item.image,
-        'imageFilename': item.image_filename,
-        'closestColor': item.closest_color_code,
-        'closestColorName': item.closest_color_name,
-        'category': item.category,
-        'pond': item.pond,
-        'date': item.date.strftime('%Y-%m-%d %H:%M:%S') 
-    } for item in submitted_data]
-    
-    response = make_response(jsonify(data))
-    response.headers['Cache-Control'] = 'public, max-age=60'
-    return response
- 
 
-@app.route('/delete-data/<int:id>', methods=['DELETE'])
+# @app.route('/delete-data/<int:id>', methods=['DELETE'])
+# def delete_data(id):
+#     try: 
+#         record = Pond_Color_Trends.query.get(id)
+#         if record is None:
+#             return make_response(jsonify({'error': 'Record not found'}), 404)
+
+#         db.session.delete(record)
+#         db.session.commit()
+
+#         return make_response(jsonify({'message': 'Record deleted successfully'}), 200)
+    
+#     except Exception as e:
+#         db.session.rollback()
+#         return make_response(jsonify({'error': str(e)}), 500)
+
+@app.route('/submitted-data', methods=['GET'])
+@cache.cached(timeout=5)
+def get_submitted_data():
+    try:
+        obj = s3.get_object(Bucket=app.config['AWS_S3_BUCKET'], Key=app.config['CSV_S3_KEY'])
+        csv_content = obj['Body'].read().decode('utf-8')
+        csv_file = io.StringIO(csv_content)
+        reader = csv.DictReader(csv_file)
+
+        data = [{
+            "id": row["ID"],
+            "imageFilename": row["Image File Name"],
+            "closestColor": row["Closest Color Code"],
+            "closestColorName": row["Closest Color Name"],
+            "category": row["Category"],
+            "pond": row["Pond"],
+            "date": row["Date"]
+        } for row in reader]
+
+        response = make_response(jsonify(data))
+        response.headers['Cache-Control'] = 'public, max-age=60'
+        return response
+
+    except Exception as e:
+        return jsonify({"error": f"Failed to fetch data: {str(e)}"}), 500
+
+@app.route('/delete-data/<string:id>', methods=['DELETE'])
 def delete_data(id):
-    try: 
+    try:
+         # Read existing CSV from S3
+        obj = s3.get_object(Bucket=app.config['AWS_S3_BUCKET'], Key=app.config['CSV_S3_KEY'])
+        csv_content = obj['Body'].read().decode('utf-8')
+        csv_file = io.StringIO(csv_content)
+        reader = list(csv.reader(csv_file))
+
+        # Remove matching rows
+        header = reader[0]
+        updated_rows = [row for row in reader if row[0] != id]
+
+        # Rewrite CSV
+        output = io.StringIO()
+        writer = csv.writer(output)
+        writer.writerows(updated_rows)
+        s3.put_object(Bucket=app.config['AWS_S3_BUCKET'], Key=app.config['CSV_S3_KEY'], Body=output.getvalue())
+        
+         # Delete from database
         record = Pond_Color_Trends.query.get(id)
         if record is None:
             return make_response(jsonify({'error': 'Record not found'}), 404)
 
         db.session.delete(record)
         db.session.commit()
+        
+        
+        return jsonify({"message": "Record deleted successfully"}), 200
 
-        return make_response(jsonify({'message': 'Record deleted successfully'}), 200)
-    
     except Exception as e:
         db.session.rollback()
-        return make_response(jsonify({'error': str(e)}), 500)
+        return jsonify({"error": f"Failed to delete record: {str(e)}"}), 500
 
 
 @app.route('/<path:filename>')
