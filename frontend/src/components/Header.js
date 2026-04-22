@@ -6,6 +6,7 @@ import {
 } from "@headlessui/react";
 import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useLocation } from "react-router-dom";
+const API_URL = process.env.GLOBAL_URL;
 
 function Header() {
   const location = useLocation();
@@ -21,7 +22,7 @@ function Header() {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/logout", {
+      const response = await fetch(`${API_URL}/backend/logout`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -73,11 +74,10 @@ function Header() {
                   <a
                     key={item.name}
                     href={item.href}
-                    className={`group text-black transition-all duration-300 ease-in-out block rounded-md px-2 py-2 text-base font-medium relative overflow-hidden ${
-                      item.active
-                        ? "text-green-600 hover:text-black"
-                        : "text-black"
-                    }`}
+                    className={`group text-black transition-all duration-300 ease-in-out block rounded-md px-2 py-2 text-base font-medium relative overflow-hidden ${item.active
+                      ? "text-green-600 hover:text-black"
+                      : "text-black"
+                      }`}
                   >
                     <span
                       className={`absolute inset-x-0 bottom-1 h-[3px] bg-green-500 transform scale-x-0 transition-transform origin-left group-hover:scale-x-100`}
@@ -88,16 +88,16 @@ function Header() {
               </div>
             </div>
             <div className="hidden sm:block">
-            <button
-  onClick={handleLogout}
-  className="ml-auto flex items-center space-x-2 text-red-600 px-6 py-2 rounded-lg text-sm font-medium hover:ring-1 hover:ring-red-600"
->
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-    <path fillRule="evenodd" d="M17 4.25A2.25 2.25 0 0 0 14.75 2h-5.5A2.25 2.25 0 0 0 7 4.25v2a.75.75 0 0 0 1.5 0v-2a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v11.5a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75v-2a.75.75 0 0 0-1.5 0v2A2.25 2.25 0 0 0 9.25 18h5.5A2.25 2.25 0 0 0 17 15.75V4.25Z" clipRule="evenodd" />
-    <path fillRule="evenodd" d="M14 10a.75.75 0 0 0-.75-.75H3.704l1.048-.943a.75.75 0 1 0-1.004-1.114l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943h9.546A.75.75 0 0 0 14 10Z" clipRule="evenodd" />
-  </svg>
-  <span>Logout</span>
-</button>
+              <button
+                onClick={handleLogout}
+                className="ml-auto flex items-center space-x-2 text-red-600 px-6 py-2 rounded-lg text-sm font-medium hover:ring-1 hover:ring-red-600"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
+                  <path fillRule="evenodd" d="M17 4.25A2.25 2.25 0 0 0 14.75 2h-5.5A2.25 2.25 0 0 0 7 4.25v2a.75.75 0 0 0 1.5 0v-2a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 .75.75v11.5a.75.75 0 0 1-.75.75h-5.5a.75.75 0 0 1-.75-.75v-2a.75.75 0 0 0-1.5 0v2A2.25 2.25 0 0 0 9.25 18h5.5A2.25 2.25 0 0 0 17 15.75V4.25Z" clipRule="evenodd" />
+                  <path fillRule="evenodd" d="M14 10a.75.75 0 0 0-.75-.75H3.704l1.048-.943a.75.75 0 1 0-1.004-1.114l-2.5 2.25a.75.75 0 0 0 0 1.114l2.5 2.25a.75.75 0 1 0 1.004-1.114l-1.048-.943h9.546A.75.75 0 0 0 14 10Z" clipRule="evenodd" />
+                </svg>
+                <span>Logout</span>
+              </button>
 
             </div>
           </div>
@@ -111,9 +111,8 @@ function Header() {
               key={item.name}
               as="a"
               href={item.href}
-              className={`group text-black transition-all duration-300 ease-in-out block rounded-md px-2 py-2 text-base font-medium relative overflow-hidden ${
-                item.active ? "text-green-600 hover:text-black" : "text-black"
-              }`}
+              className={`group text-black transition-all duration-300 ease-in-out block rounded-md px-2 py-2 text-base font-medium relative overflow-hidden ${item.active ? "text-green-600 hover:text-black" : "text-black"
+                }`}
             >
               <span
                 className={`absolute inset-x-0 bottom-1 h-[3px] bg-green-500 transform scale-x-0 transition-transform origin-left group-hover:scale-x-100`}

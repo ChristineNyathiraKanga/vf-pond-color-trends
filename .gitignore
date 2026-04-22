@@ -9,3 +9,13 @@ backend/Dockerfile
 backend/Procfile.dev
 backend/config.py
 
+sql/pond_users.sql
+sql/pond__color__trends.sqld
+toS3/pondcolortrends.csv
+.env
+
+/.venv
+frontend/.env.production
+frontend/.env.local
+sql/pond__color__trends.sql
+

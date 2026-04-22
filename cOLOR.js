@@ -94,7 +94,7 @@ const ColorPicker = () => {
     const [imageFilename, setImageFilename] = useState("");
     const [dragging, setDragging] = useState(false);
     const fileInputRef = useRef(null);
-    
+
     const handleImageUpload = (event) => {
       const reader = new FileReader();
 
@@ -141,8 +141,8 @@ const ColorPicker = () => {
       };
 
       try {
-        // const response = await fetch('https://colorpicker.victoryfarmskenya.com/backend/submit', {
-        const response = await fetch('http://127.0.0.1:5000/submit', {
+        // const response = await fetch('${API_URL}/backend/submit', {
+        const response = await fetch('${API_URL}/backend/submit', {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -186,15 +186,15 @@ const ColorPicker = () => {
         const result = await open();
         setColor(result.sRGBHex);
 
-        // const response = await fetch('https://colorpicker.victoryfarmskenya.com/backend/match-color', {
-          const response = await fetch('http://127.0.0.1:5000/match-color', {
+        // const response = await fetch('${API_URL}/backend/match-color', {
+        const response = await fetch('${API_URL}/backend/match-color', {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({ sRGBHex: result.sRGBHex }),
         });
-      
+
         const data = await response.json();
         setClosestColor(data);
       } catch (e) {
@@ -230,7 +230,7 @@ const ColorPicker = () => {
       const file = event.dataTransfer.files[0];
       handleFile(file);
     };
-    
+
 
     return (
       <div className="">
@@ -240,160 +240,159 @@ const ColorPicker = () => {
             <div className="border px-10 py-10 w-full">
               <form onSubmit={handleSubmit} className="p-4">
                 {/* <div className="grid grid-cols-1 gap-x-6 gap-y-8 lg:grid-cols-5"> */}
-                  
-                 
-                  {/* other div */}
-                  <div className="order-1 lg:col-span-2">
-                    <div className="mb-4">
-                      <label className="block py-2 text-sm font-medium text-black">
-                        Select Date and Time
-                      </label>
-                      <input
-                        type="datetime-local"
-                        value={date}
-                        onChange={(e) => setDate(e.target.value)}
-                        className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
-                      />
-                    </div>
 
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-black">
-                        Category
-                      </label>
-                      <select
-                        value={category}
-                        onChange={(e) => setCategory(e.target.value)}
-                        className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
-                      >
-                        {categories.map((cat) => (
-                          <option key={cat} value={cat}>
-                            {cat}
-                          </option>
-                        ))}
-                      </select>
-                    </div>
 
-                    <div className="mb-4">
-                      <label className="block text-sm font-medium text-black">
-                        Pond
-                      </label>
-                      <select
-                        value={pond}
-                        onChange={(e) => setPond(e.target.value)}
-                        className=" py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
-                      >
-                        {ponds.map((p) => (
-                          <option key={p} value={p}>
-                            {p}
-                          </option>
-                        ))}
-                      </select>
+                {/* other div */}
+                <div className="order-1 lg:col-span-2">
+                  <div className="mb-4">
+                    <label className="block py-2 text-sm font-medium text-black">
+                      Select Date and Time
+                    </label>
+                    <input
+                      type="datetime-local"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
+                    />
+                  </div>
 
-                      {closestColor && (
-                        <div ref={closestColorInputRef}>
-                          <label className="block mt-2 text-sm font-medium text-black">
-                            Color in Palette:
-                          </label>
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-black">
+                      Category
+                    </label>
+                    <select
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
+                    >
+                      {categories.map((cat) => (
+                        <option key={cat} value={cat}>
+                          {cat}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div className="mb-4">
+                    <label className="block text-sm font-medium text-black">
+                      Pond
+                    </label>
+                    <select
+                      value={pond}
+                      onChange={(e) => setPond(e.target.value)}
+                      className=" py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
+                    >
+                      {ponds.map((p) => (
+                        <option key={p} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                    </select>
+
+                    {closestColor && (
+                      <div ref={closestColorInputRef}>
+                        <label className="block mt-2 text-sm font-medium text-black">
+                          Color in Palette:
+                        </label>
+                        <div
+                          style={{ backgroundColor: closestColor.code }}
+                          className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
+                        >
+                          <p className="text-sm">
+                            <span className="p-2 text-white">
+                              {closestColor.name} ({closestColor.code})
+                            </span>
+                          </p>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-full py-2 px-4 bg-green-600 text-white font-medium rounded-md shadow-sm"
+                  >
+                    Submit
+                  </button>
+                </div>
+                {/* image div */}
+                <div className="order-2 lg:col-span-3">
+                  <div
+                    className={`mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 ${dragging ? "bg-gray-100" : ""
+                      }`}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                  >
+                    <div className="text-center">
+                      {!image ? (
+                        <>
+                          <PhotoIcon
+                            className="mx-auto h-12 w-12 text-gray-300"
+                            aria-hidden="true"
+                          />
+                          <div className="mt-4 flex text-sm leading-6 text-gray-600">
+                            <label
+                              htmlFor="image"
+                              className="relative cursor-pointer rounded-md font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-green-600 focus-within:ring-offset-2 hover:text-green-500"
+                            >
+                              <span>Upload a file</span>
+                              <input
+                                id="image"
+                                name="image"
+                                accept="image/*"
+                                type="file"
+                                onChange={handleImageUpload}
+                                className="sr-only"
+                                ref={fileInputRef}
+                              />
+                            </label>
+                            <p className="pl-1">or drag and drop</p>
+                          </div>
+                          <p className="text-xs leading-5 text-gray-600">
+                            PNG, JPG, GIF up to 10MB
+                          </p>
+                        </>
+                      ) : (
+                        <div>
                           <div
-                            style={{ backgroundColor: closestColor.code }}
-                            className="py-1 px-2 mt-1 block w-full border border-gray-300 shadow-sm rounded-md"
+                            className="flex items-center bg-blue-500 px-4 py-3 text-sm font-bold text-white"
+                            role="alert"
                           >
-                            <p className="text-sm">
-                              <span className="p-2 text-white">
-                                {closestColor.name} ({closestColor.code})
-                              </span>
+                            <svg
+                              className="mr-2 h-4 w-4 fill-current"
+                              xmlns="http://www.w3.org/2000/svg"
+                              viewBox="0 0 20 20"
+                            >
+                              <path d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
+                            </svg>
+                            <p>
+                              Click once to activate or deactivate color
+                              dropper
                             </p>
                           </div>
+
+                          {image && (
+                            <img
+                              src={image}
+                              alt="Uploaded"
+                              ref={imageRef}
+                              onClick={handleColorPick}
+                              className="mt-4 w-full h-auto rounded-lg"
+                            />
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={handleReset}
+                            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          >
+                            Reset
+                          </button>
                         </div>
                       )}
                     </div>
-                    <button
-                      type="submit"
-                      className="w-full py-2 px-4 bg-green-600 text-white font-medium rounded-md shadow-sm"
-                    >
-                      Submit
-                    </button>
                   </div>
-                  {/* image div */}
-                  <div className="order-2 lg:col-span-3">
-                    <div
-                      className={`mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 ${
-                        dragging ? "bg-gray-100" : ""
-                      }`}
-                      onDragOver={handleDragOver}
-                      onDragLeave={handleDragLeave}
-                      onDrop={handleDrop}
-                    >
-                      <div className="text-center">
-                        {!image ? (
-                          <>
-                            <PhotoIcon
-                              className="mx-auto h-12 w-12 text-gray-300"
-                              aria-hidden="true"
-                            />
-                            <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                              <label
-                                htmlFor="image"
-                                className="relative cursor-pointer rounded-md font-semibold text-green-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-green-600 focus-within:ring-offset-2 hover:text-green-500"
-                              >
-                                <span>Upload a file</span>
-                                <input
-                                  id="image"
-                                  name="image"
-                                  accept="image/*"
-                                  type="file"
-                                  onChange={handleImageUpload}
-                                  className="sr-only"
-                                  ref={fileInputRef}
-                                />
-                              </label>
-                              <p className="pl-1">or drag and drop</p>
-                            </div>
-                            <p className="text-xs leading-5 text-gray-600">
-                              PNG, JPG, GIF up to 10MB
-                            </p>
-                          </>
-                        ) : (
-                          <div>
-                            <div
-                              className="flex items-center bg-blue-500 px-4 py-3 text-sm font-bold text-white"
-                              role="alert"
-                            >
-                              <svg
-                                className="mr-2 h-4 w-4 fill-current"
-                                xmlns="http://www.w3.org/2000/svg"
-                                viewBox="0 0 20 20"
-                              >
-                                <path d="M12.432 0c1.34 0 2.01.912 2.01 1.957 0 1.305-1.164 2.512-2.679 2.512-1.269 0-2.009-.75-1.974-1.99C9.789 1.436 10.67 0 12.432 0zM8.309 20c-1.058 0-1.833-.652-1.093-3.524l1.214-5.092c.211-.814.246-1.141 0-1.141-.317 0-1.689.562-2.502 1.117l-.528-.88c2.572-2.186 5.531-3.467 6.801-3.467 1.057 0 1.233 1.273.705 3.23l-1.391 5.352c-.246.945-.141 1.271.106 1.271.317 0 1.357-.392 2.379-1.207l.6.814C12.098 19.02 9.365 20 8.309 20z" />
-                              </svg>
-                              <p>
-                                Click once to activate or deactivate color
-                                dropper
-                              </p>
-                            </div>
-
-                            {image && (
-                              <img
-                                src={image}
-                                alt="Uploaded"
-                                ref={imageRef}
-                                onClick={handleColorPick}
-                                className="mt-4 w-full h-auto rounded-lg"
-                              />
-                            )}
-
-                            <button
-                              type="button"
-                              onClick={handleReset}
-                              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                            >
-                              Reset
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
+                </div>
 
                 {/* </div> */}
               </form>
